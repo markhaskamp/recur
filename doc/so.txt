@@ -1,0 +1,53 @@
+Private Sub GenerateTreeView()
+        Dim ds As New DataSet()
+
+        Dim tasktree As New Task(_taskID)
+
+        Dim dt As DataTable = tasktree.GetTaskTree()
+
+        ds.Tables.Add(dt)
+
+        ds.Relations.Add("NodeRelation", dt.Columns("TaskID"), dt.Columns("ParentID"))
+
+        Dim dbRow As DataRow
+        For Each dbRow In dt.Rows
+            If dbRow("TaskID") = _taskID Then
+                Dim node As RadTreeNode = CreateNode(dbRow("Subject").ToString(), False, dbRow("TaskID").ToString())
+                RadTree1.Nodes.Add(node)
+                RecursivelyPopulate(dbRow, node)
+            End If
+        Next dbRow
+    End Sub 
+
+    Private Sub RecursivelyPopulate(ByVal dbRow As DataRow, ByVal node As RadTreeNode)
+        Dim childRow As DataRow
+        Dim StrikeThrough As String = ""
+        Dim ExpandNode As Boolean = True
+        For Each childRow In dbRow.GetChildRows("NodeRelation")
+            Select Case childRow("StatusTypeID")
+                Case 2
+                    StrikeThrough = "ActiveTask"
+                Case 3
+                    StrikeThrough = "CompletedTask"
+                    ExpandNode = False
+                Case 4, 5
+                    StrikeThrough = "ClosedTask"
+                    ExpandNode = False
+                Case Else
+                    StrikeThrough = "InactiveTask"
+                    ExpandNode = False
+            End Select
+            Dim childNode As RadTreeNode = CreateNode("<span class=""" & StrikeThrough & """><a href=""Task.aspx?taskid=" & childRow("TaskID").ToString() & """>" & childRow("Subject").ToString() & "</a></span>", ExpandNode, childRow("TaskID").ToString())
+            node.Nodes.Add(childNode)
+            RecursivelyPopulate(childRow, childNode)
+            ExpandNode = True
+        Next childRow
+    End Sub
+
+    Private Function CreateNode(ByVal [text] As String, ByVal expanded As Boolean, ByVal id As String) As RadTreeNode
+        Dim node As New RadTreeNode([text])
+        node.Expanded = expanded
+
+        Return node
+    End Function
+

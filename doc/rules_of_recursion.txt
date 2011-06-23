@@ -1,0 +1,8 @@
+When recurring on a lit of atoms, ask 1) null? and 2) else
+When recurring on a number, ask 1) 0? and 2) else
+When recurring on a list, ask 1) empty? 2) (atom (car l)) and 3) else
+
+Always change at least one argument while recurring.
+It must me chnaged to be closer to termination.
+The changing argument must be tested in the termination condition.
+
