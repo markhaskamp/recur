@@ -4,33 +4,33 @@
 # 2
 #   3
 #     4
-#   5
-# 6
-#   7
-#
-#  build this data representation
-# [1,nil], [2, [3, [4, nil]], [5, nil]], [6, [7, nil]]
+#     5
+#   6
+# 7
+#   8
 
-@dataset = [[1,0], [2,0], [3,2], [4,3], [5,2], [6,0], [7,6]]
+@dataset = [[1,0], [2,0], [3,2], [4,3], [5,3], [6,2], [7,0], [8,7]]
 
 @spacer_count = 0
-def foo parent_id
+
+def get_leaves parent_id
+
   @spacer_count += 1
 
-  a = @dataset.find_all {|ele| ele[1] == parent_id}
+  leaves = @dataset.find_all {|ele| ele[1] == parent_id}
 
-  a.each do |item|
+  leaves.each do |item|
     prefix = ""
     @spacer_count.times do
       prefix += " "
     end
     puts "#{prefix} #{item[0]}"
-    foo item[0]
+    get_leaves item[0]
   end
 
   @spacer_count -= 1
 end
 
 puts "dataset.length: #{@dataset.length}"
-foo 0
+get_leaves 0
 
